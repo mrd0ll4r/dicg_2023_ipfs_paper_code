@@ -16,13 +16,16 @@ dir.create("csv", showWarnings = FALSE, recursive = TRUE, mode = "0777")
 
 num_entries = 2000
 lnorm_cutoff = 133*1024
+max_filesize = floor(100*1024 * 5*60) # 100 KiB/s in 5 minutes
 
-generate_file_sizes <- function(n=num_entries, cutoff=lnorm_cutoff) {
+generate_file_sizes <- function(n=num_entries, cutoff=lnorm_cutoff, max_fs=max_filesize) {
   d = rlnorm(n, meanlog=9.357, sdlog=1.318)
   d = d[d < cutoff]
   d = d[1:(n*0.93)]
-  d = append(d, rpareto(n-length(d), k=1.1, xmin=cutoff))
+  d = append(d, rpareto(n, k=1.1, xmin=cutoff))
   d = floor(d)
+  d = d[d <= max_fs]
+  d = d[1:n]
   return(sample(d))
 }
 
