@@ -1,3 +1,12 @@
+# Generates file sizes in bytes based on file size distributions as described in
+# Barford, Crovella: Generating Representative Web Workloads for Network and
+# Server Performance Evaluation
+# https://dl.acm.org/doi/pdf/10.1145/277851.277897
+#
+# We configure an expected available bandwidth for downloads and uploads,
+# and the interval at which files will be downloaded.
+# This results in a maximum file size which is transferable within the time slot.
+
 library(stats)
 library(distributionsrd)
 library(ggplot2)
@@ -14,9 +23,9 @@ source("tikz_setup.R")
 
 dir.create("csv", showWarnings = FALSE, recursive = TRUE, mode = "0777")
 
-num_entries = 2000
+num_entries = 5000
 lnorm_cutoff = 133*1024
-max_filesize = floor(100*1024 * 5*60) # 100 KiB/s in 5 minutes
+max_filesize = floor(1000*1000/8 * 5*60) # 1mbps in 5 minutes
 
 generate_file_sizes <- function(n=num_entries, cutoff=lnorm_cutoff, max_fs=max_filesize) {
   d = rlnorm(n, meanlog=9.357, sdlog=1.318)
@@ -29,15 +38,21 @@ generate_file_sizes <- function(n=num_entries, cutoff=lnorm_cutoff, max_fs=max_f
   return(sample(d))
 }
 
-dd <- tibble(server=as.factor(c(rep(1,num_entries),rep(2,num_entries),rep(3,num_entries))),
-             file_size=list_c(lapply(rep(num_entries,3),generate_file_sizes))
-             )
+dd <- tibble( server=as.factor(c(
+                      rep(1,num_entries),
+                      rep(2,num_entries),
+                      rep(3,num_entries),
+                      rep(4,num_entries),
+                      rep(5,num_entries)
+                    )),
+              file_size=list_c(lapply(rep(num_entries,5),generate_file_sizes))
+)
 
 write_csv(dd,file="csv/file_sizes.csv")
 
 dd %>%
   group_by(server) %>%
-  summarize(mean=mean(file_size), min=min(file_size), max=max(file_size), sum=sum(file_size))
+  summarize(n=n(),mean=mean(file_size), min=min(file_size), max=max(file_size), sum=sum(file_size))
 
 p = ggplot(dd, aes(x = file_size, y = 1-after_stat(ecdf), group=server, color=server)) +
   stat_ecdf(pad=FALSE) +
