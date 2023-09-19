@@ -29,6 +29,9 @@ server_5: CN, server, non-NATed, crawls, ics-cn-server
 
 ## Docker
 
+This assumes you have the environemnt variables `ipfs_staging` and `ipfs_data` set to empty, existing directories.
+It's advisable to have these exports in your `~/.profile`, for reasons explained below.
+
 Run a NATed daemon like so:
 ```
 docker run --name ipfs_host -v $ipfs_staging:/export -v $ipfs_data:/data/ipfs -v ./001-configure-ipfs.sh:/container-init.d/001_configure_ipfs.sh -p 127.0.0.1:8080:8080 -p 127.0.0.1:5001:5001 ipfs/kubo:v0.22.0
@@ -43,7 +46,7 @@ ipfs config apply server
 ```
 
 The cron scripts will need to be run as the correct user, with the above variables exported.
-This can be achieved by having the variables auto-set in `.bashrc` and runnin cron jobs with `bash -lc <command>`.
+This can be achieved by having the variables auto-set in `~/.profile` and running cron jobs with `bash -lc <command>`.
 The scripts will detect whether a dockerized setup is being used based on whether the variables are set.
 You'll also need passwordless sudo to fix permissions on the downloaded files, otherwise they belong to root and are not readable by the user running the scripts.
 
@@ -76,6 +79,11 @@ Add the crawler script for servers that crawl:
 Add the download script for every machine:
 ```
 3,8,13,18,23,28,33,38,43,48,53,58 * * * * bash -lc /projects/ipfs/china_study/scripts/cron-download.sh >> /projects/ipfs/china_study/scripts/cron-download.log 2>&1
+```
+
+Add the script getting the list of connected peers for every maching:
+```
+3,8,13,18,23,28,33,38,43,48,53,58 * * * * bash -lc /projects/ipfs/china_study/scripts/cron-ipfs-swarm-peers.sh >> /projects/ipfs/china_study/cron-ipfs-swarm-peers.log 2>&1
 ```
 
 The `bash -lc` part makes sure to run bash in login shell mode, which sets `PATH` according to the current user.
