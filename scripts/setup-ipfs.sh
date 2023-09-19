@@ -8,8 +8,7 @@ cd kubo
 ./install.sh
 
 # you may need to log out and back in at this point
-ipfs init
-ipfs config profile apply server
+ipfs init --profile server
 
 # adjust ports in ~/.ipfs/config as necessary
 
