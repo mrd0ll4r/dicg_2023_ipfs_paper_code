@@ -23,7 +23,7 @@ source("tikz_setup.R")
 
 dir.create("csv", showWarnings = FALSE, recursive = TRUE, mode = "0777")
 
-num_entries = 5000
+num_entries = 2000
 lnorm_cutoff = 133*1024
 max_filesize = floor(1000*1000/8 * 5*60) # 1mbps in 5 minutes
 
@@ -48,35 +48,10 @@ dd <- tibble( server=as.factor(c(
               file_size=list_c(lapply(rep(num_entries,5),generate_file_sizes))
 )
 
-write_csv(dd,file="csv/file_sizes.csv")
-
 dd %>%
   group_by(server) %>%
   summarize(n=n(),mean=mean(file_size), min=min(file_size), max=max(file_size), sum=sum(file_size))
 
-p = ggplot(dd, aes(x = file_size, y = 1-after_stat(ecdf), group=server, color=server)) +
-  stat_ecdf(pad=FALSE) +
-  scale_x_continuous(
-    trans="log2",
-    breaks = 2^seq(2,26,2),
-    labels = trans_format("log2", math_format(2 ^ .x)),
-  )+
-  scale_y_log10() +
-  xlab("File Size (Log Scale)") +
-  ylab("1-ECDF")
 
-print_plot(p,"file_sizes_loglog_ecdf")
-
-p = ggplot(dd, aes(x = file_size, group=server, color=server)) +
-  stat_ecdf(pad=FALSE) +
-  scale_x_continuous(
-    trans="log2",
-    breaks = 2^seq(2,26,2),
-    labels = trans_format("log2", math_format(2 ^ .x)),
-  )+
-  xlab("File Size (Log Scale)") +
-  ylab("ECDF")
-
-print_plot(p,"file_sizes_ecdf")
-
+write_csv(dd,file="csv/file_sizes.csv")
 

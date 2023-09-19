@@ -4,7 +4,7 @@
 library(readr)
 library(dplyr)
 
-num_files_per_server=5000
+num_files_per_server=2000
 num_servers=4
 
 # Generate permutations of who downloads from whom
