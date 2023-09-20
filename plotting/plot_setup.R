@@ -14,7 +14,7 @@ theme_update(
   #legend.title = element_blank()
 )
 
-print_plot <- function(plot, name, width=3.5, height=2.5){
+print_plot <- function(plot, name, width=3, height=2){
   tex_name <- sprintf("fig/%s.tex",name)
   png_name <- sprintf("fig/%s.png",name)
   tex_width <- width
