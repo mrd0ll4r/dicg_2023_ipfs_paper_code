@@ -21,3 +21,4 @@ They are all intended to be run from the project root, i.e., `./scripts/<whateve
 - `push_functioning_gateways.sh` pushes the list of known functional gateways to the machines.
 - `cron_ipfs_swarm_peers.sh` collects `ipfs swarm peers` info to a set of timestamped files.
 - `cron-ipfs-swarm-peers.sh` calls the above.
+- `get_peer_lists.sh` downloads the peer lists from all machines.
