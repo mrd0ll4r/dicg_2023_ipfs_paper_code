@@ -28,10 +28,10 @@ d2 = read_csv("csv/experiment_02/file_sizes.csv",col_types = "id") %>%
 
 dd = d1 %>% rbind(d2)
 
-for (experiment in c(1,2)) {
-  p=dd %>%
-    filter(experiment==experiment) %>%
-    ggplot(aes(x = file_size, y = 1-after_stat(ecdf), group=server, color=server)) +
+for (ex in c(1,2)) {
+  p= dd %>%
+    filter(experiment==ex) %>%
+    ggplot(aes(x = file_size, y = 1-after_stat(ecdf), group=server, color=server, linetype=server)) +
     stat_ecdf(pad=FALSE) +
     scale_x_continuous(
       trans="log2",
@@ -40,14 +40,17 @@ for (experiment in c(1,2)) {
     )+
     scale_y_log10() +
     xlab("File Size (Log Scale)") +
-    ylab("1-ECDF")
+    ylab("1-ECDF") +
+    labs(group=NULL) +
+    labs(color=NULL) +
+    labs(linetype=NULL)
   
   p %>%
-    print_plot(sprintf("file_sizes_loglog_ecdf_experiment_0%d", experiment))
+    print_plot(sprintf("file_sizes_loglog_ecdf_experiment_0%d", ex))
   
   p = dd %>%
-    filter(experiment==experiment) %>%
-    ggplot(aes(x = file_size, group=server, color=server)) +
+    filter(experiment==ex) %>%
+    ggplot(aes(x = file_size, group=server, color=server, linetype=server)) +
     stat_ecdf(pad=FALSE) +
     scale_x_continuous(
       trans="log2",
@@ -55,9 +58,49 @@ for (experiment in c(1,2)) {
       labels = trans_format("log2", math_format(2 ^ .x)),
     )+
     xlab("File Size (Log Scale)") +
-    ylab("ECDF")
+    ylab("ECDF") +
+    labs(group=NULL) +
+    labs(color=NULL) +
+    labs(linetype=NULL)
   
-  print_plot(p,sprintf("file_sizes_ecdf_experiment_0%d", experiment))
+  print_plot(p,sprintf("file_sizes_ecdf_experiment_0%d", ex))
 }
+
+p = dd %>%
+  mutate(experiment = sprintf("Experiment %d", experiment)) %>%
+  ggplot(aes(x = file_size, y = 1-after_stat(ecdf), group=server, color=server, linetype=server)) +
+  stat_ecdf(pad=FALSE) +
+  scale_x_continuous(
+    trans="log2",
+    breaks = 2^seq(2,26,2),
+    labels = trans_format("log2", math_format(2 ^ .x)),
+  )+
+  scale_y_log10() +
+  facet_wrap(~experiment) +
+  xlab("File Size (Log Scale)") +
+  ylab("1-ECDF") +
+  labs(group=NULL) +
+  labs(color=NULL) +
+  labs(linetype=NULL)
+
+print_plot(p, "file_sizes_loglog_ecdf_experiment_faceted")
+
+p = dd %>%
+  mutate(experiment = sprintf("Experiment %d", experiment)) %>%
+  ggplot(aes(x = file_size, group=server, color=server, linetype=server)) +
+  stat_ecdf(pad=FALSE) +
+  scale_x_continuous(
+    trans="log2",
+    breaks = 2^seq(2,26,2),
+    labels = trans_format("log2", math_format(2 ^ .x)),
+  ) +
+  facet_wrap(~experiment) +
+  xlab("File Size (Log Scale)") +
+  ylab("ECDF") +
+  labs(group=NULL) +
+  labs(color=NULL) +
+  labs(linetype=NULL)
+
+print_plot(p, "file_sizes_ecdf_experiment_faceted")
 
 
