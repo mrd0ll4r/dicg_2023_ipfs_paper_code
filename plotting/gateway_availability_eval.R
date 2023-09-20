@@ -37,19 +37,42 @@ d_gateway_results = d_gateway_results %>%
 # For reference: On 2023-09-18, the public gateway checker identified 15 gateways as working from my machine (DE).
 
 # How many gateways are functioning for the machines?
-d_gateway_results %>%
+dd = d_gateway_results %>%
   group_by(machine) %>%
-  summarize(n=n(), num_correct=sum(correct_result))
+  summarize(n=n(), num_correct=sum(correct_result)) %>%
+  rename(Machine=machine,Tested=n,Working=num_correct)
+
+dd
+
+save_tex_value(sprintf("%d",max(dd$Tested)), "gateways_num_tested")
+
+dd %>% filter(Machine=="CN Client") %>% mutate(tmp=sprintf("%d",Working)) %>% pull(tmp) %>%
+  save_tex_value("gateways_num_working_cn_client")
+
+dd %>% filter(Machine=="DE Server") %>% mutate(tmp=sprintf("%d",Working)) %>% pull(tmp) %>%
+  save_tex_value("gateways_num_working_de_server")
+
+print(xtable(dd), file="tab/gateways_functionality_by_server.tex")
+
 
 # Which gateways are functioning for all the machines?
-d_gateway_results %>%
+dd = d_gateway_results %>%
   group_by(gateway) %>%
   summarize(num_correct=sum(correct_result)) %>%
   filter(num_correct == num_servers) %>%
-  select(gateway) %>%
-  write_csv("csv/functioning_gateways.csv")
-  
+  select(gateway)
 
+dd
+
+dd %>%
+  rename(Gateway=gateway) %>%
+  xtable() %>%
+  print(file="tab/gateways_all_functional_gateways.tex")
+
+save_tex_value(sprintf("%d", nrow(dd)), "gateways_num_functional_everywhere")
+
+dd  %>%
+  write_csv("csv/functioning_gateways.csv")
 
 
 
