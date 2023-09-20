@@ -19,3 +19,5 @@ They are all intended to be run from the project root, i.e., `./scripts/<whateve
 - `test-gateways.sh` tests whether gateways on the list are reachable and functional from the local machine.
 - `get_gateway_test_results.sh` downloads the results of gateway availability tests off the machines.
 - `push_functioning_gateways.sh` pushes the list of known functional gateways to the machines.
+- `cron_ipfs_swarm_peers.sh` collects `ipfs swarm peers` info to a set of timestamped files.
+- `cron-ipfs-swarm-peers.sh` calls the above.
