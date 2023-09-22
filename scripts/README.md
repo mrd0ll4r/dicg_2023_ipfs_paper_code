@@ -22,3 +22,5 @@ They are all intended to be run from the project root, i.e., `./scripts/<whateve
 - `cron_ipfs_swarm_peers.sh` collects `ipfs swarm peers` info to a set of timestamped files.
 - `cron-ipfs-swarm-peers.sh` calls the above.
 - `get_peer_lists.sh` downloads the peer lists from all machines.
+- `cron_refresh_gateway_caches.sh` requests all CIDs stored on the local machine from a number of public gateways each, in parallel.
+- `cron-refresh.sh` calls the above.

@@ -89,3 +89,7 @@ Add the script getting the list of connected peers for every maching:
 The `bash -lc` part makes sure to run bash in login shell mode, which sets `PATH` according to the current user.
 This is required if you install IPFS as a user, which places it somewhere in `$USER/.local/bin`.
 
+For the experiments relying on gateway-cached data, add the caching script for every machine:
+```
+7 5,17 * * * bash -lc /projects/ipfs/china_study/scripts/cron-refresh.sh >> /projects/ipfs/china_study/scripts/cron-refresh.log 2>&1
+```
