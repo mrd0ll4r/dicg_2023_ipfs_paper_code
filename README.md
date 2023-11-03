@@ -1,5 +1,34 @@
-# ipfs_china_paper_code
-Code for the Paper "TODO"
+# DICG 2023 IPFS Functionality Paper
+
+Code for the DICG 2023 Paper "I'm InterPlanetary, Get Me Out of Here! Accessing IPFS From Restrictive Environments".
+
+## Experiments
+
+We run a total of four experiments:
+- One experiment to ascertain gateway functionality from all vantage points.
+- Three experiments to exchange data between the nodes in a controlled manner.
+  These experiments differ in whether gateway pseudo-pinning was utilized to try to bolster the success rate.
+
+Additionally, we collect peer lists of the nodes, to make statements about node interconnectivity.
+
+## Data
+
+We do not provide the datasets themselves, as, e.g., the peer lists contain sensitive information such as IP addresses.
+However, we describe the setup and include all scripts required to replicate the experiments.
+
+Please have a look at the [script/README](scripts/README.md) file for information on each of the scripts.
+Please also have a look at the [plotting/README](plotting/README.md) file for information on the R scripts and evaluation.
+
+## Machines
+
+We use these machines, with an alias configured in `~/.ssh/config` for easier scripting:
+
+```
+server_1: DE, server, non-NATed, ics-de-server
+server_2: CN, client, NATed, ics-cn-client
+server_3: US, client, NATed, ics-us-client
+server_4: US, server, non-NATed, ics-us-server
+```
 
 ## Prerequisites
 
@@ -14,18 +43,6 @@ You'll need:
 - Python 3 for various data wrangling
 - [jq](https://jqlang.github.io/jq/) to deal with JSON on the command line.
     This is probably available in your distribution's repositories.
-
-## Machines
-
-We use these machines, with an alias configured in `~/.ssh/config` for easier scripting:
-
-```
-server_1: DE, server, non-NATed, crawls, ics-de-server
-server_2: CN, client, NATed, no crawls, ics-cn-client
-server_3: US, client, NATed, no crawls, ics-us-client
-server_4: US, server, non-NATed, crawls, ics-us-server
-server_5: CN, server, non-NATed, crawls, ics-cn-server
-```
 
 ## Docker
 
@@ -71,11 +88,6 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
-Add the crawler script for servers that crawl:
-```
-20 2,8,14,20 * * * /projects/ipfs/china_study/scripts/cron-crawl.sh >> /projects/ipfs/china_study/scripts/cron-crawl.log 2>&1
-```
-
 Add the download script for every machine:
 ```
 3,8,13,18,23,28,33,38,43,48,53,58 * * * * bash -lc /projects/ipfs/china_study/scripts/cron-download.sh >> /projects/ipfs/china_study/scripts/cron-download.log 2>&1
@@ -93,3 +105,7 @@ For the experiments relying on gateway-cached data, add the caching script for e
 ```
 7 5,17 * * * bash -lc /projects/ipfs/china_study/scripts/cron-refresh.sh >> /projects/ipfs/china_study/scripts/cron-refresh.log 2>&1
 ```
+
+## License
+
+MIT, see [LICENSE](LICENSE).
