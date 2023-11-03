@@ -99,5 +99,3 @@ p = d_file_sizes %>%
   labs(linetype=NULL)
 
 print_plot(p, "file_sizes_ecdf_experiment_faceted")
-
-
