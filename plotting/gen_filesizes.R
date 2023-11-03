@@ -25,7 +25,7 @@ dir.create("csv", showWarnings = FALSE, recursive = TRUE, mode = "0777")
 
 num_entries = 2000
 lnorm_cutoff = 133*1024
-max_filesize = floor(1000*1000/8 * 5*60) # 1mbps in 5 minutes
+max_filesize = floor(1000*1000/8 * 5*60) # 1mbps in 5 minutes, in bytes
 
 generate_file_sizes <- function(n=num_entries, cutoff=lnorm_cutoff, max_fs=max_filesize) {
   d = rlnorm(n, meanlog=9.357, sdlog=1.318)
@@ -42,10 +42,9 @@ dd <- tibble( server=as.factor(c(
                       rep(1,num_entries),
                       rep(2,num_entries),
                       rep(3,num_entries),
-                      rep(4,num_entries),
-                      rep(5,num_entries)
+                      rep(4,num_entries)
                     )),
-              file_size=list_c(lapply(rep(num_entries,5),generate_file_sizes))
+              file_size=list_c(lapply(rep(num_entries, 4),generate_file_sizes))
 )
 
 dd %>%

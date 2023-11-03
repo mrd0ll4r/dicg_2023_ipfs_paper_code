@@ -4,15 +4,12 @@ library(readr)
 library(tidyr)
 library(scales)
 library(purrr)
-library(forecast)
 
 source("base_setup.R")
 source("plot_setup.R")
 source("table_setup.R")
 source("tikz_setup.R")
-
-num_servers = 4
-server_names = c("DE Server","CN Client","US Client","US Server")
+source("constants.R")
 
 # The expected SHA256 hash.
 # a48161fca5edd15f4649bb928c10769216fccdf317265fc75d747c1e6892f53c is for the README.
@@ -33,39 +30,59 @@ d_gateway_results = d_gateway_results %>%
   mutate(machine = factor(machine, labels=server_names)) %>%
   mutate(correct_result=(computed_sha256==correct_sha256))
 
+#################################################
+# General stats
 
 # For reference: On 2023-09-18, the public gateway checker identified 15 gateways as working from my machine (DE).
 
+# When did we test?
+d_gateway_results %>%
+  mutate(test_date = as.Date(timestamp)) %>%
+  group_by(test_date) %>%
+  summarize() %>%
+  pull(test_date) %>%
+  sprintf("%s", .) %>%
+  save_tex_value("gateways_measurement_date")
+
+# How many gateways were on the list?
+d_gateway_results %>%
+  group_by(gateway) %>%
+  summarize() %>%
+  nrow() %>%
+  sprintf("$%d$", .) %>%
+  save_tex_value("gateways_num_tested")
+
+#################################################
 # How many gateways are functioning for the machines?
 dd = d_gateway_results %>%
   group_by(machine) %>%
   summarize(n=n(), num_correct=sum(correct_result)) %>%
   rename(Machine=machine,Tested=n,Working=num_correct)
 
-dd
-
-save_tex_value(sprintf("%d",max(dd$Tested)), "gateways_num_tested")
-
-dd %>% filter(Machine=="CN Client") %>% mutate(tmp=sprintf("%d",Working)) %>% pull(tmp) %>%
+dd %>% filter(Machine=="CN Client") %>% mutate(tmp=sprintf("%d",Working)) %>% 
+  pull(tmp) %>%
   save_tex_value("gateways_num_working_cn_client")
 
-dd %>% filter(Machine=="DE Server") %>% mutate(tmp=sprintf("%d",Working)) %>% pull(tmp) %>%
+dd %>% filter(Machine=="DE Server") %>% mutate(tmp=sprintf("%d",Working)) %>% 
+  pull(tmp) %>%
   save_tex_value("gateways_num_working_de_server")
 
 print(xtable(dd), file="tab/gateways_functionality_by_server.tex")
 
-
+#################################################
 # Which gateways are functioning for all the machines?
 dd = d_gateway_results %>%
   group_by(gateway) %>%
   summarize(num_correct=sum(correct_result)) %>%
   filter(num_correct == num_servers) %>%
-  select(gateway)
-
-dd
+  select(gateway) %>%
+  mutate(gateway = gsub("https://","",gateway,fixed=TRUE)) %>%
+  mutate(gateway = gsub("/ipfs","",gateway,fixed=TRUE)) %>%
+  mutate(gateway = gsub("/:hash","",gateway,fixed=TRUE)) %>%
+  mutate(gateway = gsub(":hash.","",gateway,fixed=TRUE))
 
 dd %>%
-  rename(Gateway=gateway) %>%
+  rename(`Gateway TLD`=gateway) %>%
   xtable() %>%
   print(file="tab/gateways_all_functional_gateways.tex")
 

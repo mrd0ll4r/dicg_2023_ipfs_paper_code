@@ -1,5 +1,3 @@
-
-
 library(ggplot2)
 library(dplyr)
 library(readr)
@@ -11,25 +9,24 @@ source("base_setup.R")
 source("plot_setup.R")
 source("table_setup.R")
 source("tikz_setup.R")
-
-server_names = c("DE Server","CN Client","US Client","US Server")
+source("constants.R")
+source("util.R")
 
 # Load data
-
 d1 = read_csv("csv/experiment_01/file_sizes.csv",col_types = "id") %>%
-  filter(server <= 4) %>%
+  filter(server <= num_servers) %>%
   mutate(server = factor(server,labels=server_names)) %>%
   mutate(experiment=1)
 
 d2 = read_csv("csv/experiment_02/file_sizes.csv",col_types = "id") %>%
-  filter(server <= 4) %>%
+  filter(server <= num_servers) %>%
   mutate(server = factor(server,labels=server_names)) %>%
   mutate(experiment=2)
 
-dd = d1 %>% rbind(d2)
+d_file_sizes = d1 %>% rbind(d2)
 
 for (ex in c(1,2)) {
-  p= dd %>%
+  p= d_file_sizes %>%
     filter(experiment==ex) %>%
     ggplot(aes(x = file_size, y = 1-after_stat(ecdf), group=server, color=server, linetype=server)) +
     stat_ecdf(pad=FALSE) +
@@ -48,7 +45,7 @@ for (ex in c(1,2)) {
   p %>%
     print_plot(sprintf("file_sizes_loglog_ecdf_experiment_0%d", ex))
   
-  p = dd %>%
+  p = d_file_sizes %>%
     filter(experiment==ex) %>%
     ggplot(aes(x = file_size, group=server, color=server, linetype=server)) +
     stat_ecdf(pad=FALSE) +
@@ -66,7 +63,7 @@ for (ex in c(1,2)) {
   print_plot(p,sprintf("file_sizes_ecdf_experiment_0%d", ex))
 }
 
-p = dd %>%
+p = d_file_sizes %>%
   mutate(experiment = sprintf("Experiment %d", experiment)) %>%
   ggplot(aes(x = file_size, y = 1-after_stat(ecdf), group=server, color=server, linetype=server)) +
   stat_ecdf(pad=FALSE) +
@@ -85,7 +82,7 @@ p = dd %>%
 
 print_plot(p, "file_sizes_loglog_ecdf_experiment_faceted")
 
-p = dd %>%
+p = d_file_sizes %>%
   mutate(experiment = sprintf("Experiment %d", experiment)) %>%
   ggplot(aes(x = file_size, group=server, color=server, linetype=server)) +
   stat_ecdf(pad=FALSE) +

@@ -4,7 +4,7 @@
 
 echo "experiment,server,file_size,sha256_hash"
 
-for ex in $(seq 1 2); do
+for ex in $(seq 1 3); do
     for server in $(seq 1 5); do
         for f in "data/experiment_0$ex/files/server_$server"/*; do
             b=$(basename "$f")

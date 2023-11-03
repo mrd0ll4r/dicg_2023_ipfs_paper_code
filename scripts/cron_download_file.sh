@@ -14,6 +14,13 @@ fi
 
 # pop the last line off the CSV file
 line=$(sed -i -e '${w /dev/stdout' -e 'd;}' "$infile")
+
+# Check if we're done
+if [ -z "$line" -o "$line" == "cid,sha256_hash" ]; then
+    echo "Experiment is over."
+    exit 0
+fi
+
 cid=$(echo "$line" | awk -F',' '{print $1}')
 sha256_hash=$(echo "$line" | awk -F',' '{print $2}')
 

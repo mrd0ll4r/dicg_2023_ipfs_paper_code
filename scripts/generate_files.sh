@@ -4,7 +4,7 @@ base_dir="data/files"
 
 mkdir -p "$base_dir"
 
-for i in $(seq 1 5); do
+for i in $(seq 1 4); do
     echo "Generating files for server $i..."
     out_dir="$base_dir/server_${i}"
     mkdir -p "$out_dir"
