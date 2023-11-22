@@ -51,8 +51,16 @@ for (server in seq(1, num_servers)) {
 }
 
 d_peers = d_peers %>%
-  mutate(server = factor(server, labels = server_names))
-
+  mutate(server = factor(server, labels = server_names)) %>%
+  mutate(experiment = case_when(
+    timestamp >= experiment_1_begin_ts &
+      timestamp < experiment_1_end_ts ~ 1,
+    timestamp >= experiment_2_begin_ts &
+      timestamp < experiment_2_end_ts ~ 2,
+    timestamp >= experiment_3_begin_ts &
+      timestamp < experiment_3_end_ts ~ 3
+  )) %>%
+  filter(!is.na(experiment))
 
 #########################################
 # Number of connections over time
@@ -71,7 +79,7 @@ minor_breaks = with(d_peers %>% group_by(server, timestamp) %>%
 minor_breaks = minor_breaks - (minor_breaks[2] - minor_breaks[1]) / 2
 
 p = d_peers %>%
-  group_by(server, timestamp) %>%
+  group_by(server, timestamp, experiment) %>%
   summarize(n = n()) %>%
   ggplot(aes(
     x = timestamp,
@@ -82,6 +90,7 @@ p = d_peers %>%
   geom_line() +
   geom_hline(yintercept = 32, show.legend = FALSE) +
   geom_hline(yintercept = 96, show.legend = FALSE) +
+  facet_wrap(~experiment) +
   ylab("Peers") +
   xlab("Date (UTC)") +
   scale_x_datetime(date_breaks = "1 day") +
@@ -100,6 +109,7 @@ print_plot(p, "peers_num_peers_over_time")
 # Mean number of connections
 
 dd = d_peers %>%
+  filter(experiment == 2) %>%
   group_by(server, timestamp) %>%
   summarize(n = n()) %>%
   summarize(mean = mean(n), stddev = std(n))
@@ -139,6 +149,7 @@ dd %>%
 # Share of protocols
 
 dd = d_peers %>%
+  filter(experiment == 2) %>%
   mutate(
     quic_v1 = grepl("quic-v1", remote, fixed = TRUE),
     quic = grepl("quic", remote, fixed = TRUE),
@@ -179,6 +190,7 @@ print_plot(p, "peers_protocol_share_by_server", width = 3.5, height=1.2)
 # Connections between servers
 
 d =   d_peers %>%
+  filter(experiment == 2) %>%
   mutate(
     remote_is_server_1 = grepl(server_1_id, remote, fixed = TRUE),
     remote_is_server_2 = grepl(server_2_id, remote, fixed = TRUE),
@@ -216,7 +228,8 @@ p = d %>%
     color = "black",
     fill = "white",
     label.r = unit(0, "lines"),
-    size = rel(3.5)
+    size = rel(2.5),
+    label.padding = unit(0.125, "lines")
   ) +
   coord_fixed() +
   scale_x_discrete(position = "top") +
@@ -224,10 +237,15 @@ p = d %>%
   ylab(NULL) +
   labs(fill = "Connectivity") +
   scale_fill_continuous(type = "viridis", option = "E", limits=c(0,1)) +
+  theme_bw(9) +
   theme(plot.margin=unit(c(0,0,0,0),"mm")) +
-  theme(axis.text = element_text(color = "black"))
+  theme(axis.text.x = element_text(angle=-30, hjust=1)) +
+  theme(axis.text = element_text(color = "black")) +
+  theme(legend.position = "right") +
+  theme(legend.key.width = unit(0.3, 'cm'),
+        legend.key.height = unit(0.4, "cm"))
 
-print_plot(p,"peers_connectivity_between_servers", width=1.8, height=1.8)
+print_plot(p,"peers_connectivity_between_servers", width=3, height=1.5)
 
 # TODO join this with the download assignments to see if a pair was connected before attempting a download.
 # 

@@ -150,6 +150,7 @@ for (ex in seq(1, 3)) {
 }
 
 p = d_downloads %>%
+  filter(experiment %in% c(1,2)) %>%
   group_by(experiment, downloaded_by_server, stored_on_server) %>%
   summarize(
     n = n(),
@@ -164,8 +165,9 @@ p = d_downloads %>%
     aes(label = round(success_rate, 2)),
     color = "black",
     fill = "white",
-    size = rel(3.5),
-    label.r = unit(0, "lines")
+    size = rel(2.5),
+    label.r = unit(0, "lines"),
+    label.padding = unit(0.125, "lines")
   ) +
   coord_fixed() +
   scale_x_discrete(position = "top") +
@@ -173,15 +175,21 @@ p = d_downloads %>%
   ylab("Stored On") +
   labs(fill = "Success Rate") +
   facet_wrap( ~ experiment) +
-  scale_fill_continuous(type = "viridis", option = "E", limits=c(0,1)) +
+  scale_fill_continuous(type = "viridis", option = "E", limits=c(0,1), direction = 1) +
+  theme_bw(9) +
   theme(plot.margin=unit(c(0,0,0,0),"mm")) +
-  theme(axis.text = element_text(color = "black"))
+  theme(axis.text = element_text(color = "black")) +
+  theme(legend.position = "bottom") +
+  theme(axis.text.x = element_text(angle=-30, hjust=1)) +
+  theme(axis.text.y = element_text(angle=45, vjust=0)) +
+  theme(legend.key.height = unit(0.3, 'cm'),
+        legend.title = element_text(vjust = 0.9))
 
 print_plot(
   p,
   "downloads_success_rate_experiment_faceted",
-  width = 3.5,
-  height = 2.2
+  width = 3,
+  height = 2.4
 )
 
 # General success rate per experiment
